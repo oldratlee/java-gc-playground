@@ -1,12 +1,12 @@
 package com.foo;
 
+import com.google.common.cache.CacheBuilder;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.Random;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,7 +20,10 @@ public class JavaGcPlayGroundTest {
         Thread thread = new Thread(new NewTask());
         thread.start();
 
-        Map<Integer, byte[]> holder = new WeakHashMap<Integer, byte[]>();
+        final ConcurrentMap<Object, byte[]> holder = CacheBuilder.newBuilder()
+                .weakValues()
+                .<Object, byte[]>build()
+                .asMap();
         for (int i = 0; ; ++i) {
             if (i % 1000000 == 0)
                 logger.info("input count: {}m, total new byte array size: {}g", i / 1000000, i / 1000000);
